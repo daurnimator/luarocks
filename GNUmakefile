@@ -23,7 +23,7 @@ all: build
 # Base build
 # ----------------------------------------
 
-build: luarocks luarocks-admin $(builddir)/luarocks $(builddir)/luarocks-admin
+build: luarocks luarocks-admin $(builddir)/luarocks $(builddir)/luarocks-admin $(builddir)/config-$(LUA_VERSION).lua
 
 config.unix:
 	@echo Please run the "./configure" script before building.
@@ -46,7 +46,7 @@ $(builddir)/config-$(LUA_VERSION).lua: config.unix
 	'}\n'\
 	> $@
 
-luarocks: config.unix $(builddir)/config-$(LUA_VERSION).lua
+luarocks: config.unix
 	rm -f src/luarocks/core/hardcoded.lua
 	echo "#!/bin/sh" > luarocks
 	echo "unset LUA_PATH LUA_PATH_5_2 LUA_PATH_5_3 LUA_PATH_5_4" >> luarocks
