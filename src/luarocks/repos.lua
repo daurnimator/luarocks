@@ -358,14 +358,15 @@ end
 -- @param deps_mode: string: Which trees to check dependencies for:
 -- "one" for the current default tree, "all" for all trees,
 -- "order" for all trees with priority >= the current default, "none" for no trees.
-function repos.deploy_files(name, version, wrap_bin_scripts, deps_mode)
+-- @param update_manifest: boolean: Should the manifest be created/updated
+function repos.deploy_files(name, version, wrap_bin_scripts, deps_mode, update_manifest)
    assert(type(name) == "string" and not name:match("/"))
    assert(type(version) == "string")
    assert(type(wrap_bin_scripts) == "boolean")
 
    local rock_manifest, load_err = manif.load_rock_manifest(name, version)
    if not rock_manifest then return nil, load_err end
-   
+
    local repo = cfg.root_dir
    local renames = {}
    local installs = {}
@@ -460,8 +461,17 @@ function repos.deploy_files(name, version, wrap_bin_scripts, deps_mode)
       end
    end
 
-   local writer = require("luarocks.manif.writer")
-   return writer.add_to_manifest(name, version, nil, deps_mode)
+   if update_manifest then
+      local writer = require("luarocks.manif.writer")
+      local ok, err = writer.add_to_manifest(name, version, nil, deps_mode)
+      if not ok then
+         rollback_ops(installs, rollback_install, #installs)
+         rollback_ops(renames, rollback_rename, #renames)
+         return nil, err
+      end
+   end
+
+   return true
 end
 
 --- Delete a package from the local repository.

@@ -133,6 +133,7 @@ function cmd_build.command(args)
       need_to_fetch = true,
       minimal_mode = false,
       deps_mode = deps.get_deps_mode(args),
+      no_manifest = not not args.no_manifest,
       build_only_deps = not not args.only_deps,
       namespace = args.namespace,
       branch = args.branch,

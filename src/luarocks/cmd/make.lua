@@ -34,6 +34,7 @@ function make.cmd_options(parser)
       "option to work properly.")
    parser:flag("--sign", "To be used with --pack-binary-rock. Also produce a "..
       "signature file for the generated .rock file.")
+   parser:flag("--no-manifest", "Skip creating/updating the manifest")
    util.deps_mode_option(parser)
 end
 
@@ -89,6 +90,7 @@ function make.command(args)
       need_to_fetch = false,
       minimal_mode = true,
       deps_mode = deps.get_deps_mode(args),
+      no_manifest = not not args.no_manifest,
       build_only_deps = false,
       namespace = args.namespace,
       branch = args.branch,

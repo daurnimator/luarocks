@@ -16,6 +16,7 @@ build.opts = util.opts_table("build.opts", {
    need_to_fetch = "boolean",
    minimal_mode = "boolean",
    deps_mode = "string",
+   no_manifest = "boolean",
    build_only_deps = "boolean",
    namespace = "string?",
    branch = "string?",
@@ -409,9 +410,9 @@ function build.build_rockspec(rockspec, opts)
    ok, err = write_rock_dir_files(rockspec, opts)
    if not ok then return nil, err end
 
-   ok, err = repos.deploy_files(name, version, repos.should_wrap_bin_scripts(rockspec), opts.deps_mode)
+   ok, err = repos.deploy_files(name, version, repos.should_wrap_bin_scripts(rockspec), opts.deps_mode, not opts.no_manifest)
    if not ok then return nil, err end
-   
+
    util.remove_scheduled_function(rollback)
    rollback = util.schedule_function(function()
       repos.delete_version(name, version, opts.deps_mode)

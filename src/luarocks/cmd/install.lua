@@ -40,6 +40,7 @@ function install.add_to_parser(parser)
       "You need the signer’s public key in your local keyring for this "..
       "option to work properly.")
    util.deps_mode_option(cmd)
+   cmd:flag("--no-manifest", "Skip creating/updating the manifest")
    -- luarocks build options
    parser:flag("--pack-binary-rock"):hidden(true)
    parser:option("--branch"):hidden(true)
@@ -53,6 +54,7 @@ install.opts = util.opts_table("install.opts", {
    force_fast = "boolean",
    no_doc = "boolean",
    deps_mode = "string",
+   no_manifest = "boolean",
    verify = "boolean",
 })
 
@@ -72,16 +74,16 @@ function install.install_binary_rock(rock_file, opts)
    if not name then
       return nil, "Filename "..rock_file.." does not match format 'name-version-revision.arch.rock'."
    end
-   
+
    if arch ~= "all" and arch ~= cfg.arch then
       return nil, "Incompatible architecture "..arch, "arch"
    end
    if repos.is_installed(name, version) then
       repos.delete_version(name, version, opts.deps_mode)
    end
-   
+
    local install_dir = path.install_dir(name, version)
-   
+
    local rollback = util.schedule_function(function()
       fs.delete(install_dir)
       fs.remove_dir_if_empty(path.versions_dir(name))
@@ -118,7 +120,7 @@ function install.install_binary_rock(rock_file, opts)
       if err then return nil, err, errcode end
    end
 
-   ok, err = repos.deploy_files(name, version, repos.should_wrap_bin_scripts(rockspec), deps_mode)
+   ok, err = repos.deploy_files(name, version, repos.should_wrap_bin_scripts(rockspec), deps_mode, not opts.no_manifest)
    if err then return nil, err end
 
    util.remove_scheduled_function(rollback)
@@ -236,6 +238,7 @@ function install.command(args)
          force_fast = not not args.force_fast,
          no_doc = not not args.no_doc,
          deps_mode = deps_mode,
+         no_manifest = not not args.no_manifest,
          verify = not not args.verify,
       })
       if args.only_deps then
