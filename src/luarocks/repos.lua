@@ -484,7 +484,8 @@ end
 -- of another version that provides the same module that
 -- was deleted. This is used during 'purge', as every module
 -- will be eventually deleted.
-function repos.delete_version(name, version, deps_mode, quick)
+-- @param update_manifest: boolean: Should the manifest be created/updated
+function repos.delete_version(name, version, deps_mode, quick, update_manifest)
    assert(type(name) == "string" and not name:match("/"))
    assert(type(version) == "string")
    assert(type(deps_mode) == "string")
@@ -568,12 +569,13 @@ function repos.delete_version(name, version, deps_mode, quick)
       fs.delete(dir.path(cfg.rocks_dir, name))
    end
 
-   if quick then
-      return true
+   if update_manifest and not quick then
+      local writer = require("luarocks.manif.writer")
+      local ok, err = writer.remove_from_manifest(name, version, nil, deps_mode)
+      if not ok then return err end
    end
 
-   local writer = require("luarocks.manif.writer")
-   return writer.remove_from_manifest(name, version, nil, deps_mode)
+   return true
 end
 
 return repos

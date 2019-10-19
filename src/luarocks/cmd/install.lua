@@ -79,7 +79,7 @@ function install.install_binary_rock(rock_file, opts)
       return nil, "Incompatible architecture "..arch, "arch"
    end
    if repos.is_installed(name, version) then
-      repos.delete_version(name, version, opts.deps_mode)
+      repos.delete_version(name, version, opts.deps_mode, false, not opts.no_manifest)
    end
 
    local install_dir = path.install_dir(name, version)
@@ -125,7 +125,7 @@ function install.install_binary_rock(rock_file, opts)
 
    util.remove_scheduled_function(rollback)
    rollback = util.schedule_function(function()
-      repos.delete_version(name, version, deps_mode)
+      repos.delete_version(name, version, deps_mode, false, not opts.no_manifest)
    end)
 
    ok, err = repos.run_hook(rockspec, "post_install")

@@ -372,7 +372,7 @@ function build.build_rockspec(rockspec, opts)
    end   
 
    if repos.is_installed(name, version) then
-      repos.delete_version(name, version, opts.deps_mode)
+      repos.delete_version(name, version, opts.deps_mode, false, not opts.no_manifest)
    end
 
    ok, err = fetch_and_change_to_source_dir(rockspec, opts)
@@ -415,7 +415,7 @@ function build.build_rockspec(rockspec, opts)
 
    util.remove_scheduled_function(rollback)
    rollback = util.schedule_function(function()
-      repos.delete_version(name, version, opts.deps_mode)
+      repos.delete_version(name, version, opts.deps_mode, false, not opts.no_manifest)
    end)
 
    ok, err = repos.run_hook(rockspec, "post_install")

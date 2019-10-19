@@ -51,7 +51,7 @@ local function delete_versions(name, versions, deps_mode)
 
    for version, _ in pairs(versions) do
       util.printout("Removing "..name.." "..version.."...")
-      local ok, err = repos.delete_version(name, version, deps_mode)
+      local ok, err = repos.delete_version(name, version, deps_mode, false, true)
       if not ok then return nil, err end
    end
    
